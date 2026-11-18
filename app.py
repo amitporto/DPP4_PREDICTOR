@@ -73,18 +73,48 @@ sdf1="DPPH_trainingSet_minimized.sdf"
 
 #sdf2="LXRB_rs25_tr_minimized.sdf"
 
-def applicability(smiles,mysdf,rad):
-    d_ECFP4 = {}
-    m=Chem.MolFromSmiles(smiles)
-    for mol in Chem.SDMolSupplier(mysdf):
-        mg = AllChem.GetMorganFingerprintAsBitVect(mol, radius=rad,nBits=1024,useFeatures=False,useChirality = True)
-        if m is not None:
-           mg_ = AllChem.GetMorganFingerprintAsBitVect(m, rad, useFeatures=False)
-           d_ECFP4.setdefault(Chem.MolToSmiles(m),[]).append(DataStructs.FingerprintSimilarity(mg, mg_))
 
-    df_ECFP4 = pd.DataFrame.from_dict(d_ECFP4)
-    #print(df_ECFP4.max()[0])
-    return df_ECFP4.max()[0]
+def applicability(smiles, mysdf, rad):
+
+    similarities = []
+
+    m = Chem.MolFromSmiles(smiles)
+
+    if m is None:
+        return None
+
+    # Generate query fingerprint
+    mg_ = AllChem.GetMorganFingerprintAsBitVect(
+        m,
+        radius=rad,
+        nBits=1024,
+        useFeatures=False,
+        useChirality=True
+    )
+
+    # Compare with training set compounds
+    for mol in Chem.SDMolSupplier(mysdf):
+
+        if mol is None:
+            continue
+
+        mg = AllChem.GetMorganFingerprintAsBitVect(
+            mol,
+            radius=rad,
+            nBits=1024,
+            useFeatures=False,
+            useChirality=True
+        )
+
+        similarities.append(
+            DataStructs.FingerprintSimilarity(mg, mg_)
+        )
+
+    if not similarities:
+        return None
+
+    return max(similarities)
+
 
 
 # Streamlit application
