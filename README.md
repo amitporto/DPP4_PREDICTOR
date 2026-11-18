@@ -1,2 +1,2 @@
-# DPP4_PREDICTOR
-This app predicts the binding potential of the chemical compounds towards Dipeptidyl peptidase-4 (DPP-4) using trained fingerprint-based models
+# LXR-alpha_PREDICTOR
+This Streamlit based tool is useful for screening multiple compounds provided in form of SMILES notation to determine its activity towards LXR-alpha protein, an an important biological target for metabolic, cardiovascular, inflammatory, and neoplastic diseases. 
