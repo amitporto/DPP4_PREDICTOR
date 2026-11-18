@@ -83,7 +83,7 @@ def applicability(smiles,mysdf,rad):
            d_ECFP4.setdefault(Chem.MolToSmiles(m),[]).append(DataStructs.FingerprintSimilarity(mg, mg_))
 
     df_ECFP4 = pd.DataFrame.from_dict(d_ECFP4)
-    print(df_ECFP4.max()[0])
+    #print(df_ECFP4.max()[0])
     return df_ECFP4.max()[0]
 
 
