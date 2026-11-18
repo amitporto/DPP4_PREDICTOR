@@ -12,6 +12,8 @@ import pandas as pd
 from sklearn.svm import SVC
 #from xgboost import XGBClassifier
 import warnings
+from PIL import Image
+from io import BytesIO
 
 warnings.filterwarnings("ignore")
 
@@ -55,14 +57,24 @@ def fpFunction_a(m,atomId=-1):
 def getProba(fp, predictionFunction):
     return predictionFunction((fp,))[0][1]
 
-def plot_similarity_map(mol, model,fpFunction):
+def plot_similarity_map(mol, model, fpFunction):
+
     d = Draw.MolDraw2DCairo(600, 600)
-    SimilarityMaps.GetSimilarityMapForModel(mol,
-                                            fpFunction,
-                                            lambda x : float(getProba(x, model.predict_proba)),
-                                            draw2d=d)
+
+    SimilarityMaps.GetSimilarityMapForModel(
+        mol,
+        fpFunction,
+        lambda x: float(getProba(x, model.decision_function)),
+        draw2d=d
+    )
+
     d.FinishDrawing()
-    return d
+
+    # Convert RDKit PNG output into PIL image
+    png_data = d.GetDrawingText()
+    img = Image.open(BytesIO(png_data)).convert("RGB")
+
+    return img
 
 
 
@@ -164,9 +176,9 @@ def main():
 
                #fig,_=SimilarityMaps.GetSimilarityMapForModel(mol, fpFunction, lambda x: getProba(x, model.predict_proba), colorMap=cm.PiYG_r)
                #st.pyplot(fig)
-               res=plot_similarity_map(mol, model_a,fpFunction_a)
-               fig=res.GetDrawingText()
-               st.image(fig)
+               res = plot_similarity_map(mol, model_a, fpFunction_a)
+
+               st.image(res,caption="Molecular Similarity Map",use_container_width=True)
                st.markdown("**Colour scheme:**")
                st.markdown('<span style="color:green">Molecular environments that increase predicted probability of class 1 (Active)</span>', unsafe_allow_html=True)
                st.markdown('<span style="color:red">Molecular environments that decrease predicted probability of class 0 (Inctive)</span>', unsafe_allow_html=True)
